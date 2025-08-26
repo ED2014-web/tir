@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Jeu de Tir 🎯</title>
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    h1 {
+      margin: 20px;
+    }
+    #zoneJeu {
+      position: relative;
+      width: 100%;
+      height: 80vh;
+      background: #222;
+      overflow: hidden;
+      border: 3px solid #fff;
+      cursor: crosshair;
+    }
+    .cible {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: red;
+      border: 3px solid white;
+      cursor: pointer;
+    }
+    #infos {
+      margin: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 Jeu de Tir</h1>
+  <div id="infos">
+    <p>Niveau : <span id="niveau">1</span> | Score : <span id="score">0</span> | Vies : <span id="vies">3</span></p>
+  </div>
+  <div id="zoneJeu"></div>
+
+  <audio id="sonTir">
+    <source src="https://www.fesliyanstudios.com/play-mp3/387" type="audio/mpeg">
+  </audio>
+
+  <script>
+    let niveau = 1;
+    let score = 0;
+    let vies = 3;
+    let scoreCible = 5; // points nécessaires pour passer au niveau suivant
+    let zone = document.getElementById("zoneJeu");
+
+    function creerCible() {
+      let cible = document.createElement("div");
+      cible.classList.add("cible");
+
+      let x = Math.random() * (zone.clientWidth - 60);
+      let y = Math.random() * (zone.clientHeight - 60);
+      cible.style.left = x + "px";
+      cible.style.top = y + "px";
+
+      cible.onclick = function() {
+        tirer();
+        score++;
+        document.getElementById("score").innerText = score;
+        cible.remove();
+        if (score >= scoreCible * niveau) {
+          niveau++;
+          document.getElementById("niveau").innerText = niveau;
+          alert("Bravo ! Niveau " + niveau);
+        }
+      };
+
+      zone.appendChild(cible);
+
+      // La cible disparaît après un délai -> perte de vie
+      setTimeout(() => {
+        if (zone.contains(cible)) {
+          cible.remove();
+          vies--;
+          document.getElementById("vies").innerText = vies;
+          if (vies <= 0) {
+            alert("💀 Game Over ! Ton score final : " + score);
+            location.reload(); // recommencer le jeu
+          }
+        }
+      }, 2000 - niveau * 200); // plus difficile à haut niveau
+    }
+
+    function tirer() {
+      let son = document.getElementById("sonTir");
+      son.currentTime = 0;
+      son.play();
+    }
+
+    // Génère des cibles toutes les 1,5 secondes (plus rapide à chaque niveau)
+    setInterval(() => {
+      creerCible();
+    }, 1500);
+  </script>
+</body>
+</html>
